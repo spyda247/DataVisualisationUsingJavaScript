@@ -1,0 +1,86 @@
+<html>
+  <head>
+    <title>Heatmap in JavaScript</title>
+    <script src="https://cdn.anychart.com/releases/8.11.1/js/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.11.1/js/anychart-heatmap.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="container"></div>
+
+    <script type="module">
+      import { getData } from "./Data.js";
+
+      anychart.onDocumentReady(function () {
+        // create a heatmap
+        let chart = anychart.heatMap(getData());
+        // name the heatmap
+        chart
+          .title()
+          .enabled(true)
+          .text(
+            "Fatal Car Crashes in U.S. in 2021 by Time of Day and Day of Week"
+          )
+          .padding([0, 0, 20, 0]);
+        // set the container for the heatmap
+        chart.container("container");
+        // draw the heatmap
+        chart.draw();
+
+        //Add a color scale
+        let colorScale = anychart.scales.ordinalColor();
+
+        colorScale.ranges([
+          { less: 500, color: "#B0D8A4" },
+          { from: 500, to: 900, color: "#FFE191" },
+          { from: 900, to: 1300, color: "#FD8060" },
+          { greater: 1300, color: "#CC333F" }
+        ]);
+        chart.colorScale(colorScale);
+
+        chart.hovered().fill(function () {
+          return anychart.color.darken(this.sourceColor, 0.25);
+        });
+
+        //add labels
+        // chart.labels().useHtml(true);
+        chart.labels(false);
+
+        //configure the labels
+        chart.labels().format(function () {
+          let heat = this.heat;
+          if (heat < 500) return "Low";
+          if (heat < 1000) return "Medium";
+          if (heat < 1300) return "<span style='font-weight: bold'>High</span>";
+          if (heat >= 1300)
+            return "<span style='font-weight: bold'>Extreme</span>";
+        });
+
+        // configure tooltip
+        chart.tooltip().title().useHtml(true);
+        chart
+          .tooltip()
+          .useHtml(true)
+          .titleFormat(function () {
+            return "Accidents - " + this.heat;
+          })
+          .format(function () {
+            return (
+              '<span style="color: #CECECE">Day: </span> ' +
+              this.x +
+              "<br>" +
+              '<span style="color: #CECECE">Time: </span>' +
+              this.y
+            );
+          });
+          // Modify axes
+          chart.xAxis().stroke(null);
+          chart.yAxis().stroke(null);
+          chart.xAxis().labels().padding([0, 0, 10, 0]);
+          chart.yAxis().labels().padding([0, 10, 0, 0]);
+          
+
+      });
+    </script>
+  </body>
+</html>
